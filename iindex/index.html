@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>El meu Portfoli Serverless</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9;}
+        .formulario { max-width: 400px; padding: 20px; background: white; border: 1px solid #ccc; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);}
+        input, textarea { width: 90%; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;}
+        button { padding: 10px 15px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #resultat { margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Contacta amb mi</h1>
+    <p>Aquest formulari envia dades a AWS DynamoDB passant per API Gateway i Lambda.</p>
+    
+    <div class="formulario">
+        <label for="nom">El teu nom:</label><br>
+        <input type="text" id="nom" placeholder="Escriu el teu nom">
+
+        <label for="missatge">El teu missatge:</label><br>
+        <textarea id="missatge" rows="4" placeholder="Escriu el que vulguis..."></textarea>
+
+        <button onclick="enviarFormulari()">Enviar Missatge</button>
+        <p id="resultat"></p>
+    </div>
+
+    <script>
+        async function enviarFormulari() {
+            const nom = document.getElementById('nom').value;
+            const missatge = document.getElementById('missatge').value;
+            const resultatText = document.getElementById('resultat');
+
+            
+            const url = 'https://b8t4g0v2vi.execute-api.us-east-1.amazonaws.com/enviar';
+
+            if (!nom || !missatge) {
+                resultatText.innerText = "Si us plau, omple tots els camps.";
+                resultatText.style.color = "red";
+                return;
+            }
+
+            resultatText.innerText = "Enviant dades a AWS...";
+            resultatText.style.color = "blue";
+
+            try {
+                // Ara fem un POST per enviar dades, no un GET
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nom: nom, missatge: missatge })
+                });
+
+                const data = await response.json();
+                resultatText.innerText = data; // Sortirà el missatge de la Lambda
+                resultatText.style.color = "green";
+                
+                // Buidem el formulari
+                document.getElementById('nom').value = '';
+                document.getElementById('missatge').value = '';
+                
+            } catch (error) {
+                resultatText.innerText = "Error de connexió amb l'API.";
+                resultatText.style.color = "red";
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
