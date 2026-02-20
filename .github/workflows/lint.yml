@@ -1,0 +1,25 @@
+name: Linting i Test CI
+
+# Això fa que s'executi cada cop que puges codi a la branca main
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Descarrega el teu codi a la màquina virtual
+    - name: Obtenir el codi
+      uses: actions/checkout@v3
+
+    # 2. Prepara l'entorn amb Node.js
+    - name: Configurar Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    # 3. Executa el linter (el test que demana l'enunciat) per comprovar l'HTML
+    - name: Executar Linting HTML
+      run: npx htmlhint index.html
